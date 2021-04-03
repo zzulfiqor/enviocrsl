@@ -1,27 +1,34 @@
 import 'package:enviocrsl/app/data/db/database.dart';
 import 'package:enviocrsl/app/data/models/ScannedData.dart';
-import 'package:enviocrsl/app/modules/home/controllers/home_controller.dart';
 import 'package:enviocrsl/app/modules/scanned_data_page/controllers/scanned_data_page_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScanQrPageController extends GetxController {
   QRViewController qrViewController;
   var dbHelper;
+
   @override
   void onInit() {
     super.onInit();
     this.dbHelper = DBHelper();
   }
 
-  var isTabOpen = false.obs;
+  @override
+  void onClose() {
+    super.onClose();
+    Get.put(ScannedDataPageController()).loadScannedData();
+  }
+
+  var isDataHaveSaved = false.obs;
+  var isTabOpen = true.obs;
   var isSubmitError = false.obs;
   var isFlashOn = false.obs;
   var isDialogLoading = false.obs;
 
   var dataFromQr = "";
-
+  var snackBarText = "".obs;
   var dataNo = '-'.obs;
   var dataNama = '-'.obs;
   var dataEkspedisi = '-'.obs;
@@ -30,7 +37,7 @@ class ScanQrPageController extends GetxController {
   var regexBracket = RegExp(r'\[|\]');
 
   void setDataFromQr(String data) {
-    this.dataFromQr = data;
+    this.dataFromQr = data.trim();
     update();
   }
 
@@ -56,6 +63,7 @@ class ScanQrPageController extends GetxController {
 
   void saveDataToDB() async {
     this.isDialogLoading.toggle();
+
     await Future.delayed(Duration(seconds: 1));
     final newData = ScannedData(
       no: dataNo.value,
@@ -63,27 +71,54 @@ class ScanQrPageController extends GetxController {
       ekspedisi: dataEkspedisi.value,
       isSubmitted: 0,
     );
-    await dbHelper.saveScannedData(newData);
-    this.isDialogLoading.toggle();
-    initQrData();
-    Get.find<HomeController>().getNotSUbmittedItemLength();
-    Get.find<ScannedDataPageController>().getNotSUbmittedItemLength();
-  }
 
-  void submitDataToSpreadSheet(String data) async {
-    if (dataNo.value != "-" &&
-        dataNama.value != "-" &&
-        dataEkspedisi.value != "-") {
-      this.isSubmitError.value = false;
-      await http.get(
-        Uri.parse(
-            "https://script.google.com/macros/s/AKfycbwuNXlwS0S94C5cDWXjfNHPEpB7xoHI_MRsKIjN-zs8OsDrzRU6xbYifVC6bZsuVs6O/exec?no=${dataNo.value}&nama=${dataNama.value}&ekspedisi=${dataEkspedisi.value}"),
-      );
-    } else {
-      this.isSubmitError.value = true;
+    isDataHaveSavedToDB(newData);
+
+    await Future.delayed(Duration(seconds: 1));
+
+    if (isDataHaveSaved.value == true) {
+      this.snackBarText.value = "This data has been submitted before";
+    } else if (isDataHaveSaved.value == false) {
+      if (newData.ekspedisi == "-" ||
+          newData.no == "-" ||
+          newData.nama == "-") {
+        this.snackBarText.value = "Data format Error";
+      } else {
+        this.snackBarText.value = "Data submit success";
+
+        await dbHelper.saveScannedData(newData);
+      }
     }
 
-    this.isSubmitError.value = false;
+    Get.snackbar(
+      "Status",
+      '${Get.find<ScanQrPageController>().snackBarText.value}',
+      duration: Duration(seconds: 2),
+      snackStyle: SnackStyle.GROUNDED,
+      backgroundColor: Colors.white,
+    );
+
+    this.isDataHaveSaved.value = false;
+
+    this.isDialogLoading.toggle();
+
     initQrData();
+
+    Get.find<ScannedDataPageController>().getNotSUbmittedItemLength();
+    Get.find<ScannedDataPageController>().loadScannedData();
+  }
+
+  Future<void> isDataHaveSavedToDB(ScannedData scannedData) async {
+    var state = false;
+    List<ScannedData> dataFromDb = await dbHelper.getScannedData();
+    dataFromDb.forEach((element) {
+      if (scannedData.no == element.no) {
+        print("isDataHaveSavedToDb = ${element.no} sudah ada di database");
+        state = true;
+        print("state true = $state");
+      } else {}
+    });
+    this.isDataHaveSaved.value = state;
+    print(state.toString());
   }
 }

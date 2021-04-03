@@ -1,6 +1,6 @@
 import 'package:enviocrsl/app/data/db/database.dart';
 import 'package:enviocrsl/app/data/models/ScannedData.dart';
-import 'package:enviocrsl/app/modules/home/controllers/home_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 
@@ -11,15 +11,24 @@ class ScannedDataPageController extends GetxController {
   void onInit() {
     super.onInit();
     this.dbHelper = DBHelper();
+    getNotSUbmittedItemLength();
     loadScannedData();
   }
 
   var dataList = <ScannedData>[].obs;
+  // var datalistFiltered = <ScannedData>[].obs;
 
   void loadScannedData() {
+    var notUploadedData = <ScannedData>[];
     Future<List<ScannedData>> dataFromDb = dbHelper.getScannedData();
     dataFromDb.then((value) {
-      dataList.assignAll(value);
+      value.forEach((element) {
+        if (element.isSubmitted != 1) {
+          notUploadedData.add(element);
+        }
+      });
+      dataList.assignAll(notUploadedData);
+      getNotSUbmittedItemLength();
     });
   }
 
@@ -36,9 +45,14 @@ class ScannedDataPageController extends GetxController {
     }
     dbHelper.updateDataToSubmitted(dataList);
     loadScannedData();
-    Get.find<HomeController>().getNotSUbmittedItemLength();
-    update();
-    print('all data submitted successfully');
+    getNotSUbmittedItemLength();
+    Get.snackbar(
+      "Status",
+      'Success Upload This Data',
+      duration: Duration(seconds: 2),
+      snackStyle: SnackStyle.GROUNDED,
+      backgroundColor: Colors.white,
+    );
   }
 
   void submitDataToSheet(int i) async {
@@ -53,20 +67,24 @@ class ScannedDataPageController extends GetxController {
     dbHelper.updateDataToSubmitted(dataList);
     loadScannedData();
     getNotSUbmittedItemLength();
-    Get.find<HomeController>().getNotSUbmittedItemLength();
+    Get.snackbar(
+      "Status",
+      'Success Upload All Data',
+      duration: Duration(seconds: 2),
+      snackStyle: SnackStyle.GROUNDED,
+      backgroundColor: Colors.white,
+    );
   }
 
-  void deleteSingleData(String id) {
-    this.dbHelper.deleteDataByNo(id);
-    loadScannedData();
-    Get.find<HomeController>().getNotSUbmittedItemLength();
-  }
+  // void deleteSingleData(String id) {
+  //   this.dbHelper.deleteDataByNo(id);
+  //   loadScannedData();
+  // }
 
-  void deleteAllData() {
-    this.dbHelper.deleteAllData();
-    loadScannedData();
-    Get.find<HomeController>().getNotSUbmittedItemLength();
-  }
+  // void deleteAllData() {
+  //   this.dbHelper.deleteAllData();
+  //   loadScannedData();
+  // }
 
   void getNotSUbmittedItemLength() async {
     var count = await dbHelper.getNoSubmittedDataCount();

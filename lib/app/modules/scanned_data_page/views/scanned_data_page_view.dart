@@ -1,5 +1,3 @@
-import 'package:enviocrsl/app/modules/home/controllers/home_controller.dart';
-import 'package:enviocrsl/app/modules/scan_qr_page/controllers/scan_qr_page_controller.dart';
 import 'package:enviocrsl/app/utils/app_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,18 +14,75 @@ class ScannedDataPageView extends StatelessWidget {
       init: ScannedDataPageController(),
       builder: (c) {
         return Scaffold(
-            floatingActionButton: (c.countNotSubmitted == 0)
-                ? null
-                : FloatingActionButton(
-                    backgroundColor: accent_color_dark,
-                    child: Icon(Icons.upload_file),
-                    onPressed: (c.dataList.length == 0)
-                        ? null
-                        : () {
-                            c.updateAllData();
-                            c.getNotSUbmittedItemLength();
-                          },
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: Container(
+              alignment: Alignment.bottomCenter,
+              width: Get.width,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  //
+                  Align(
+                      alignment: Alignment.topRight,
+                      child: AnimatedSwitcher(
+                        duration: Duration(milliseconds: 500),
+                        child: (c.countNotSubmitted == 0)
+                            ? Container(
+                                key: Key('kosong'),
+                              )
+                            : Container(
+                                key: Key('isi'),
+                                padding: EdgeInsets.only(right: 15),
+                                child: FloatingActionButton(
+                                    backgroundColor: accent_color_dark,
+                                    child: Icon(CupertinoIcons.cloud_upload),
+                                    onPressed: () {
+                                      c.getNotSUbmittedItemLength();
+                                      c.updateAllData();
+                                    }),
+                              ),
+                      )),
+                  //
+                  Container(
+                    margin: EdgeInsets.only(top: 15),
+                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                    height: 100,
+                    width: Get.width,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(15),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.25),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        primary: main_color_dark,
+                      ),
+                      onPressed: () {
+                        Get.toNamed('/scan-qr-page');
+                      },
+                      icon: Icon(
+                        CupertinoIcons.qrcode_viewfinder,
+                        color: color_black,
+                      ),
+                      label: Text(
+                        "Scan Qr Code",
+                        style: text_body_medium,
+                      ),
+                    ),
                   ),
+                ],
+              ),
+            ),
             appBar: AppBar(
               backgroundColor: main_color_dark,
               title: Padding(
@@ -69,25 +124,6 @@ class ScannedDataPageView extends StatelessWidget {
                                     fontSize: text_size_small,
                                   ),
                                 ),
-                                SizedBox(height: 8),
-                                ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      primary: main_color_dark,
-                                    ),
-                                    onPressed: () {
-                                      Get.find<ScanQrPageController>()
-                                          .isTabOpen
-                                          .value = true;
-
-                                      Get.find<HomeController>()
-                                          .changeTabIndex(1);
-                                    },
-                                    child: Text(
-                                      "Scan Data",
-                                      style: text_body_regular.copyWith(
-                                        fontSize: text_size_small,
-                                      ),
-                                    ))
                               ],
                             ),
                           ),
@@ -272,89 +308,90 @@ class _SubmitDataDialog extends StatelessWidget {
       height: Get.height,
       width: Get.width,
       alignment: Alignment.center,
-      child:
-          (Get.find<ScannedDataPageController>().dataList[i].isSubmitted == 1)
-              ? Container(
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  width: Get.width * .65,
-                  child: Material(
-                    color: Colors.white,
-                    child: Text(
-                      "Data has been submitted",
-                      style: text_body_medium,
+      child: (Get.find<ScannedDataPageController>().dataList[i].isSubmitted ==
+              1)
+          ? Container(
+              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              width: Get.width * .65,
+              child: Material(
+                color: Colors.white,
+                child: Text(
+                  "Data has been submitted",
+                  style: text_body_medium,
+                ),
+              ),
+            )
+          : Container(
+              padding: padding_all_body,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              height: Get.height * .15,
+              width: Get.width * .65,
+              child: Material(
+                color: Colors.white,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Title
+                    Text(
+                      "Submit data Sheet ?",
+                      style: text_body_bold,
                     ),
-                  ),
-                )
-              : Container(
-                  padding: padding_all_body,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  height: Get.height * .15,
-                  width: Get.width * .65,
-                  child: Material(
-                    color: Colors.white,
-                    child: Column(
+                    // Spacer
+                    SizedBox(
+                      height: 15,
+                    ),
+                    // Row of Button
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Title
-                        Text(
-                          "Submit data Sheet ?",
-                          style: text_body_bold,
-                        ),
-                        // Spacer
-                        SizedBox(
-                          height: 15,
-                        ),
-                        // Row of Button
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                                child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                primary: Colors.white,
-                                elevation: 0,
-                              ),
-                              onPressed: () {
-                                Get.back();
-                              },
-                              child: Text(
-                                "Cancel",
-                                style: text_body_medium.copyWith(
-                                    color: main_color_dark),
-                              ),
-                            )),
-                            SizedBox(width: 15),
-                            Expanded(
-                                child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  primary: main_color_dark),
-                              onPressed: (Get.find<ScannedDataPageController>()
-                                          .dataList[i]
-                                          .isSubmitted ==
-                                      1)
-                                  ? null
-                                  : () {
-                                      Get.find<ScannedDataPageController>()
-                                          .submitDataToSheet(i);
-                                    },
-                              child: Text(
-                                "Submit",
-                                style: text_body_medium,
-                              ),
-                            )),
-                          ],
-                        )
+                        Expanded(
+                            child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            elevation: 0,
+                          ),
+                          onPressed: () {
+                            Get.back();
+                          },
+                          child: Text(
+                            "Cancel",
+                            style:
+                                text_body_bold.copyWith(color: main_color_dark),
+                          ),
+                        )),
+                        SizedBox(width: 15),
+                        Expanded(
+                            child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              primary: main_color_dark),
+                          onPressed: (Get.find<ScannedDataPageController>()
+                                      .dataList[i]
+                                      .isSubmitted ==
+                                  1)
+                              ? null
+                              : () {
+                                  Get.find<ScannedDataPageController>()
+                                      .submitDataToSheet(i);
+                                  Get.back();
+                                },
+                          child: Text(
+                            "Submit",
+                            style: text_body_medium,
+                          ),
+                        )),
                       ],
-                    ),
-                  ),
+                    )
+                  ],
                 ),
+              ),
+            ),
     );
   }
 }

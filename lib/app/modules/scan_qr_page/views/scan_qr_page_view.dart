@@ -11,73 +11,78 @@ import '../controllers/scan_qr_page_controller.dart';
 class ScanQrPageView extends GetView<ScanQrPageController> {
   @override
   Widget build(BuildContext context) {
-    return GetX<ScanQrPageController>(
-      init: ScanQrPageController(),
-      builder: (c) {
-        return Scaffold(
-          body: (c.isTabOpen.value)
-              ? SafeArea(
-                  child: Stack(
-                    children: [
-                      // Scan Camera View
-                      QRView(
-                          key: GlobalKey(debugLabel: 'QR'),
-                          onQRViewCreated: (scanController) {
-                            c.qrViewController = scanController;
-                            scanController.scannedDataStream.listen((val) {
-                              scanController.pauseCamera();
-                              c.splitResult(val.code);
-                              Get.dialog(
-                                (c.isDialogLoading.value == false)
-                                    ? _DialogSubmitData()
-                                    : Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                barrierDismissible: false,
-                              );
-                            });
-                          }),
-                      // Scan Animation
-                      Positioned.fill(
-                        child: Opacity(
-                          opacity: .4,
-                          child: LottieBuilder.asset(
-                              'assets/lotties/scan_animation.json'),
-                        ),
-                      ),
-                      // Flash
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GetX<ScanQrPageController>(
-                            init: ScanQrPageController(),
-                            initState: (_) {},
-                            builder: (_) {
-                              return IconButton(
-                                icon: Icon(
-                                  (_.isFlashOn.value)
-                                      ? Icons.flash_off
-                                      : Icons.flash_on,
-                                  size: 32,
-                                  color: Colors.amber,
-                                ),
-                                onPressed: () {
-                                  c.qrViewController.toggleFlash();
-                                  c.qrViewController.getFlashStatus().then(
-                                        (value) => c.toggleFlashStatus(value),
-                                      );
-                                },
-                              );
-                            },
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              : Container(),
-        );
+    return WillPopScope(
+      onWillPop: () {
+        Get.back();
       },
+      child: GetX<ScanQrPageController>(
+        init: ScanQrPageController(),
+        builder: (c) {
+          return Scaffold(
+            body: (c.isTabOpen.value)
+                ? SafeArea(
+                    child: Stack(
+                      children: [
+                        // Scan Camera View
+                        QRView(
+                            key: GlobalKey(debugLabel: 'QR'),
+                            onQRViewCreated: (scanController) {
+                              c.qrViewController = scanController;
+                              scanController.scannedDataStream.listen((val) {
+                                scanController.pauseCamera();
+                                c.splitResult(val.code);
+                                Get.dialog(
+                                  (c.isDialogLoading.value == false)
+                                      ? _DialogSubmitData()
+                                      : Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                  barrierDismissible: false,
+                                );
+                              });
+                            }),
+                        // Scan Animation
+                        Positioned.fill(
+                          child: Opacity(
+                            opacity: .4,
+                            child: LottieBuilder.asset(
+                                'assets/lotties/scan_animation.json'),
+                          ),
+                        ),
+                        // Flash
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GetX<ScanQrPageController>(
+                              init: ScanQrPageController(),
+                              initState: (_) {},
+                              builder: (_) {
+                                return IconButton(
+                                  icon: Icon(
+                                    (_.isFlashOn.value)
+                                        ? Icons.flash_off
+                                        : Icons.flash_on,
+                                    size: 32,
+                                    color: Colors.amber,
+                                  ),
+                                  onPressed: () {
+                                    c.qrViewController.toggleFlash();
+                                    c.qrViewController.getFlashStatus().then(
+                                          (value) => c.toggleFlashStatus(value),
+                                        );
+                                  },
+                                );
+                              },
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                : Container(),
+          );
+        },
+      ),
     );
   }
 }
@@ -119,6 +124,7 @@ class _DialogSubmitData extends StatelessWidget {
                         color: Colors.white,
                         width: Get.width * .15,
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               "No.",
@@ -136,6 +142,7 @@ class _DialogSubmitData extends StatelessWidget {
                         color: Colors.white,
                         width: Get.width * .25,
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               "Nama",
@@ -153,6 +160,7 @@ class _DialogSubmitData extends StatelessWidget {
                         color: Colors.white,
                         width: Get.width * .2,
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               "Ekspedisi",
@@ -196,17 +204,10 @@ class _DialogSubmitData extends StatelessWidget {
                       style: ElevatedButton.styleFrom(primary: main_color_dark),
                       onPressed: () async {
                         Get.find<ScanQrPageController>().saveDataToDB();
-                        Get.back();
                         Get.find<ScanQrPageController>()
                             .qrViewController
                             .resumeCamera();
-                        Get.snackbar(
-                          "Success",
-                          'Data Saved',
-                          duration: Duration(seconds: 2),
-                          snackStyle: SnackStyle.GROUNDED,
-                          backgroundColor: Colors.white,
-                        );
+                        Get.back();
                       },
                       child: Text(
                         "Submit",
