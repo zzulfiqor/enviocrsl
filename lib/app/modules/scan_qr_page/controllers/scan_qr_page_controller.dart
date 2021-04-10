@@ -63,32 +63,24 @@ class ScanQrPageController extends GetxController {
 
   void saveDataToDB() async {
     this.isDialogLoading.toggle();
-
+    var id = DateTime.now().toString();
     await Future.delayed(Duration(seconds: 1));
     final newData = ScannedData(
+      id: id,
       no: dataNo.value,
       nama: dataNama.value,
       ekspedisi: dataEkspedisi.value,
       isSubmitted: 0,
     );
 
-    isDataHaveSavedToDB(newData);
-
-    await Future.delayed(Duration(seconds: 1));
-
-    if (isDataHaveSaved.value == true) {
-      this.snackBarText.value = "This data has been submitted before";
-    } else if (isDataHaveSaved.value == false) {
-      if (newData.ekspedisi == "-" ||
+    if (newData.ekspedisi == "-" ||
           newData.no == "-" ||
           newData.nama == "-") {
         this.snackBarText.value = "Data format Error";
       } else {
         this.snackBarText.value = "Data submit success";
-
         await dbHelper.saveScannedData(newData);
       }
-    }
 
     Get.snackbar(
       "Status",
@@ -108,17 +100,17 @@ class ScanQrPageController extends GetxController {
     Get.find<ScannedDataPageController>().loadScannedData();
   }
 
-  Future<void> isDataHaveSavedToDB(ScannedData scannedData) async {
-    var state = false;
-    List<ScannedData> dataFromDb = await dbHelper.getScannedData();
-    dataFromDb.forEach((element) {
-      if (scannedData.no == element.no) {
-        print("isDataHaveSavedToDb = ${element.no} sudah ada di database");
-        state = true;
-        print("state true = $state");
-      } else {}
-    });
-    this.isDataHaveSaved.value = state;
-    print(state.toString());
-  }
+  // Future<void> isDataHaveSavedToDB(ScannedData scannedData) async {
+  //   var state = false;
+  //   List<ScannedData> dataFromDb = await dbHelper.getScannedData();
+  //   dataFromDb.forEach((element) {
+  //     if (scannedData.no == element.no) {
+  //       print("isDataHaveSavedToDb = ${element.no} sudah ada di database");
+  //       state = true;
+  //       print("state true = $state");
+  //     } else {}
+  //   });
+  //   this.isDataHaveSaved.value = state;
+  //   print(state.toString());
+  // }
 }

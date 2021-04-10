@@ -1,9 +1,12 @@
+import 'package:enviocrsl/app/modules/scanned_data_page/views/widgets/DeleteDataDIalog.dart';
+import 'package:enviocrsl/app/modules/scanned_data_page/views/widgets/SubmitDataDIalog.dart';
 import 'package:enviocrsl/app/utils/app_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../controllers/scanned_data_page_controller.dart';
 
@@ -140,7 +143,7 @@ class ScannedDataPageView extends StatelessWidget {
                               physics: NeverScrollableScrollPhysics(),
                               itemCount: c.dataList.length,
                               itemBuilder: (_, i) {
-                                return _itemScanned(c, i);
+                                return _itemScanned(c, i, context);
                               }),
                         ],
                       ),
@@ -150,7 +153,8 @@ class ScannedDataPageView extends StatelessWidget {
     );
   }
 
-  Widget _itemScanned(ScannedDataPageController c, int i) {
+  Widget _itemScanned(
+      ScannedDataPageController c, int i, BuildContext context) {
     return Column(
       children: [
         SizedBox(height: 10),
@@ -159,9 +163,28 @@ class ScannedDataPageView extends StatelessWidget {
           child: Material(
             child: InkWell(
               onTap: () {
-                return Get.dialog(
-                  _SubmitDataDialog(
-                    i: i,
+                return showMaterialModalBottomSheet(
+                  expand: false,
+                  context: context,
+                  builder: (context) => Container(
+                    padding: EdgeInsets.all(15),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                            title: Text("Update"),
+                            leading: Icon(CupertinoIcons.cloud_upload),
+                            onTap: () => Get.dialog(SubmitDataDialog(
+                                  i: i,
+                                ))),
+                        ListTile(
+                            title: Text("Delete"),
+                            leading: Icon(CupertinoIcons.trash),
+                            onTap: () => Get.dialog(DeleteDataDialog(
+                                  i: i,
+                                ))),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -294,104 +317,6 @@ class ScannedDataPageView extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _SubmitDataDialog extends StatelessWidget {
-  const _SubmitDataDialog({Key key, this.i}) : super(key: key);
-
-  final int i;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: Get.height,
-      width: Get.width,
-      alignment: Alignment.center,
-      child: (Get.find<ScannedDataPageController>().dataList[i].isSubmitted ==
-              1)
-          ? Container(
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              width: Get.width * .65,
-              child: Material(
-                color: Colors.white,
-                child: Text(
-                  "Data has been submitted",
-                  style: text_body_medium,
-                ),
-              ),
-            )
-          : Container(
-              padding: padding_all_body,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              height: Get.height * .15,
-              width: Get.width * .65,
-              child: Material(
-                color: Colors.white,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Title
-                    Text(
-                      "Submit data Sheet ?",
-                      style: text_body_bold,
-                    ),
-                    // Spacer
-                    SizedBox(
-                      height: 15,
-                    ),
-                    // Row of Button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                            child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            elevation: 0,
-                          ),
-                          onPressed: () {
-                            Get.back();
-                          },
-                          child: Text(
-                            "Cancel",
-                            style:
-                                text_body_bold.copyWith(color: main_color_dark),
-                          ),
-                        )),
-                        SizedBox(width: 15),
-                        Expanded(
-                            child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              primary: main_color_dark),
-                          onPressed: (Get.find<ScannedDataPageController>()
-                                      .dataList[i]
-                                      .isSubmitted ==
-                                  1)
-                              ? null
-                              : () {
-                                  Get.find<ScannedDataPageController>()
-                                      .submitDataToSheet(i);
-                                  Get.back();
-                                },
-                          child: Text(
-                            "Submit",
-                            style: text_body_medium,
-                          ),
-                        )),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
     );
   }
 }

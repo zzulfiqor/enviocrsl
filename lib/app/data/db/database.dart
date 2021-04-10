@@ -14,11 +14,11 @@ class DBHelper {
 
   initDB() async {
     return await openDatabase(
-      join(await getDatabasesPath(), 'envio-crsl.db'),
+      join(await getDatabasesPath(), 'enviocrsl_.db'),
       version: 1,
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE scannedData(no INTEGER PRIMARY KEY, nama TEXT, ekspedisi TEXT,isSubmitted INTEGER)',
+          'CREATE TABLE scannedData(id STRING PRIMARY KEY, no INTEGER, nama TEXT, ekspedisi TEXT,isSubmitted INTEGER)',
         );
       },
     );
@@ -34,6 +34,7 @@ class DBHelper {
       maps.length,
       (i) {
         return ScannedData(
+          id: maps[i]['id'],
           no: maps[i]['no'].toString(),
           nama: maps[i]['nama'],
           ekspedisi: maps[i]['ekspedisi'],
@@ -56,19 +57,20 @@ class DBHelper {
     unSubmittedData.forEach(
       (element) async {
         await db.update('scannedData', element.toMap(),
-            where: 'no = ?', whereArgs: [element.no]);
+            where: 'id = ?', whereArgs: [element.id]);
       },
     );
   }
 
   // Delete data by No
-  Future<void> deleteDataByNo(String no) async {
+  Future<void> deleteDataByNo(String id) async {
     final db = await dbInstance;
-    db.delete('scannedData', where: 'no = ?', whereArgs: [no]);
+    db.delete('scannedData', where: 'id = ?', whereArgs: [id]);
+    print("data $id deleted");
   }
 
   // Delete All Data
-    Future<void> deleteAllData() async {
+  Future<void> deleteAllData() async {
     final db = await dbInstance;
     db.delete('scannedData');
   }

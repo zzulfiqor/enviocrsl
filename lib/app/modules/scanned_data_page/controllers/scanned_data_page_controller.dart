@@ -72,19 +72,25 @@ class ScannedDataPageController extends GetxController {
       'Success Upload All Data',
       duration: Duration(seconds: 2),
       snackStyle: SnackStyle.GROUNDED,
+      snackPosition: SnackPosition.TOP,
       backgroundColor: Colors.white,
     );
   }
 
-  // void deleteSingleData(String id) {
-  //   this.dbHelper.deleteDataByNo(id);
-  //   loadScannedData();
-  // }
-
-  // void deleteAllData() {
-  //   this.dbHelper.deleteAllData();
-  //   loadScannedData();
-  // }
+  void deleteSingleData(int i) {
+    var id = dataList[i].id;
+    this.dbHelper.deleteDataByNo(id);
+    Get.snackbar(
+      "Status",
+      'Success Delete Data',
+      duration: Duration(seconds: 2),
+      snackStyle: SnackStyle.GROUNDED,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.white,
+    );
+    loadScannedData();
+    getNotSUbmittedItemLength();
+  }
 
   void getNotSUbmittedItemLength() async {
     var count = await dbHelper.getNoSubmittedDataCount();
