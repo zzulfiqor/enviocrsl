@@ -14,11 +14,11 @@ class DBHelper {
 
   initDB() async {
     return await openDatabase(
-      join(await getDatabasesPath(), 'enviocrsl_.db'),
+      join(await getDatabasesPath(), 'enviocrsl_new.db'),
       version: 1,
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE scannedData(id STRING PRIMARY KEY, no INTEGER, nama TEXT, ekspedisi TEXT,isSubmitted INTEGER)',
+          'CREATE TABLE scannedData(id STRING PRIMARY KEY, no INTEGER, nama TEXT, ekspedisi TEXT, tanggal TEXT,isSubmitted INTEGER)',
         );
       },
     );
@@ -38,6 +38,7 @@ class DBHelper {
           no: maps[i]['no'].toString(),
           nama: maps[i]['nama'],
           ekspedisi: maps[i]['ekspedisi'],
+          tanggal: maps[i]['tanggal'],
           isSubmitted: (maps[i]['isSubmitted']),
         );
       },

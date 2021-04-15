@@ -4,8 +4,15 @@ class ScannedData {
   String nama;
   String ekspedisi;
   int isSubmitted;
+  String tanggal;
 
-  ScannedData({this.id, this.no, this.nama, this.ekspedisi, this.isSubmitted});
+  ScannedData(
+      {this.id,
+      this.no,
+      this.nama,
+      this.ekspedisi,
+      this.isSubmitted,
+      this.tanggal});
 
   Map<String, dynamic> toMap() {
     return {
@@ -14,6 +21,7 @@ class ScannedData {
       'nama': nama,
       'ekspedisi': ekspedisi,
       'isSubmitted': isSubmitted,
+      'tanggal': tanggal,
     };
   }
 
@@ -22,10 +30,11 @@ class ScannedData {
         no = map['no'],
         nama = map['nama'],
         ekspedisi = map['ekspedisi'],
-        isSubmitted = map['isSubmitted'];
+        isSubmitted = map['isSubmitted'],
+        tanggal = map['tanggal'];
 
   @override
   String toString() {
-    return 'ScannedData{id : $id, no: $no, nama: $nama, ekspedisi: $ekspedisi, isSubmitted: $isSubmitted}';
+    return 'ScannedData{id : $id, no: $no, nama: $nama, ekspedisi: $ekspedisi, isSubmitted: $isSubmitted, tanggal: $tanggal}';
   }
 }

@@ -32,6 +32,7 @@ class ScanQrPageController extends GetxController {
   var dataNo = '-'.obs;
   var dataNama = '-'.obs;
   var dataEkspedisi = '-'.obs;
+  var dataTanggal = '-'.obs;
 
   var regexNo = RegExp(r'[^0-9]+');
   var regexBracket = RegExp(r'\[|\]');
@@ -54,10 +55,10 @@ class ScanQrPageController extends GetxController {
   void splitResult(String data) {
     if (data != null) {
       var splitted = data.split(" ");
-      print("SPLITTED :" + splitted.toString());
       dataNo.value = splitted[0].replaceAll(regexNo, '').toString();
       dataNama.value = splitted[1];
       dataEkspedisi.value = splitted[2].replaceAll(regexBracket, '');
+      dataTanggal.value = splitted[3];
     }
   }
 
@@ -70,17 +71,16 @@ class ScanQrPageController extends GetxController {
       no: dataNo.value,
       nama: dataNama.value,
       ekspedisi: dataEkspedisi.value,
+      tanggal: dataTanggal.value,
       isSubmitted: 0,
     );
 
-    if (newData.ekspedisi == "-" ||
-          newData.no == "-" ||
-          newData.nama == "-") {
-        this.snackBarText.value = "Data format Error";
-      } else {
-        this.snackBarText.value = "Data submit success";
-        await dbHelper.saveScannedData(newData);
-      }
+    if (newData.ekspedisi == "-" || newData.no == "-" || newData.nama == "-") {
+      this.snackBarText.value = "Data format Error";
+    } else {
+      this.snackBarText.value = "Data submit success";
+      await dbHelper.saveScannedData(newData);
+    }
 
     Get.snackbar(
       "Status",
@@ -99,18 +99,4 @@ class ScanQrPageController extends GetxController {
     Get.find<ScannedDataPageController>().getNotSUbmittedItemLength();
     Get.find<ScannedDataPageController>().loadScannedData();
   }
-
-  // Future<void> isDataHaveSavedToDB(ScannedData scannedData) async {
-  //   var state = false;
-  //   List<ScannedData> dataFromDb = await dbHelper.getScannedData();
-  //   dataFromDb.forEach((element) {
-  //     if (scannedData.no == element.no) {
-  //       print("isDataHaveSavedToDb = ${element.no} sudah ada di database");
-  //       state = true;
-  //       print("state true = $state");
-  //     } else {}
-  //   });
-  //   this.isDataHaveSaved.value = state;
-  //   print(state.toString());
-  // }
 }

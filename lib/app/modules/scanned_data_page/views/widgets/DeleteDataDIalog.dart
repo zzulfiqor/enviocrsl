@@ -58,10 +58,17 @@ class DeleteDataDialog extends StatelessWidget {
                       child: ElevatedButton(
                     style: ElevatedButton.styleFrom(primary: main_color_dark),
                     onPressed: () {
-                      print('delete fun in modal');
                       Get.find<ScannedDataPageController>().deleteSingleData(i);
                       Get.back();
                       Get.back();
+                      Get.snackbar(
+                        "Status",
+                        'Success Delete Data',
+                        duration: Duration(seconds: 2),
+                        snackStyle: SnackStyle.GROUNDED,
+                        snackPosition: SnackPosition.TOP,
+                        backgroundColor: Colors.white,
+                      );
                     },
                     child: Text(
                       "Delete",

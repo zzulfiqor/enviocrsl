@@ -3,7 +3,6 @@ import 'package:enviocrsl/app/modules/scanned_data_page/views/widgets/SubmitData
 import 'package:enviocrsl/app/utils/app_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -40,9 +39,17 @@ class ScannedDataPageView extends StatelessWidget {
                                 child: FloatingActionButton(
                                     backgroundColor: accent_color_dark,
                                     child: Icon(CupertinoIcons.cloud_upload),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       c.getNotSUbmittedItemLength();
-                                      c.updateAllData();
+                                      // ignore: await_only_futures
+                                      await c.updateAllData();
+                                      Get.snackbar(
+                                        "Status",
+                                        'Success Upload all Data',
+                                        duration: Duration(seconds: 2),
+                                        snackStyle: SnackStyle.GROUNDED,
+                                        backgroundColor: Colors.white,
+                                      );
                                     }),
                               ),
                       )),
@@ -66,21 +73,50 @@ class ScannedDataPageView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        primary: main_color_dark,
-                      ),
-                      onPressed: () {
-                        Get.toNamed('/scan-qr-page');
-                      },
-                      icon: Icon(
-                        CupertinoIcons.qrcode_viewfinder,
-                        color: color_black,
-                      ),
-                      label: Text(
-                        "Scan Qr Code",
-                        style: text_body_medium,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          height: 50,
+                          width: Get.width * .43,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              primary: main_color_dark,
+                            ),
+                            onPressed: () {
+                              Get.toNamed('/scan-qr-page');
+                            },
+                            icon: Icon(
+                              CupertinoIcons.qrcode_viewfinder,
+                              color: color_black,
+                            ),
+                            label: Text(
+                              "Scan Qr Code",
+                              style: text_body_medium,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 50,
+                          width: Get.width * .43,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              primary: main_color_dark,
+                            ),
+                            onPressed: () {
+                              Get.toNamed('/input-manual-page');
+                            },
+                            icon: Icon(
+                              Icons.list_alt,
+                              color: color_black,
+                            ),
+                            label: Text(
+                              "Manual Input",
+                              style: text_body_medium,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -91,13 +127,14 @@ class ScannedDataPageView extends StatelessWidget {
               title: Padding(
                 padding: const EdgeInsets.only(left: 15),
                 child: Text(
-                  "Scanned Data",
+                  "EnvioCRSL Data",
                   style: text_body_medium.copyWith(
                       fontSize: text_size_medium, color: color_black),
                 ),
               ),
             ),
             body: SingleChildScrollView(
+              padding: EdgeInsets.only(bottom: 105),
               physics: BouncingScrollPhysics(),
               child: (c.dataList.length == 0)
                   ? Stack(
@@ -133,21 +170,32 @@ class ScannedDataPageView extends StatelessWidget {
                         ),
                       ],
                     )
-                  : Container(
-                      padding: EdgeInsets.all(padding_body_size),
-                      width: Get.width,
-                      child: Column(
-                        children: [
-                          ListView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: c.dataList.length,
-                              itemBuilder: (_, i) {
-                                return _itemScanned(c, i, context);
-                              }),
-                        ],
-                      ),
-                    ),
+                  : (c.isUploading.value == true)
+                      ? Container(
+                          height: Get.height * .75,
+                          width: Get.width,
+                          child: Center(
+                            child: Transform.scale(
+                                scale: .4,
+                                child: LottieBuilder.asset(
+                                    'assets/lotties/uploading_animation.json')),
+                          ),
+                        )
+                      : Container(
+                          padding: EdgeInsets.all(padding_body_size),
+                          width: Get.width,
+                          child: Column(
+                            children: [
+                              ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: c.dataList.length,
+                                  itemBuilder: (_, i) {
+                                    return _itemScanned(c, i, context);
+                                  }),
+                            ],
+                          ),
+                        ),
             ));
       },
     );
@@ -174,9 +222,13 @@ class ScannedDataPageView extends StatelessWidget {
                         ListTile(
                             title: Text("Update"),
                             leading: Icon(CupertinoIcons.cloud_upload),
-                            onTap: () => Get.dialog(SubmitDataDialog(
+                            onTap: () async {
+                              Get.dialog(
+                                SubmitDataDialog(
                                   i: i,
-                                ))),
+                                ),
+                              );
+                            }),
                         ListTile(
                             title: Text("Delete"),
                             leading: Icon(CupertinoIcons.trash),
@@ -207,16 +259,16 @@ class ScannedDataPageView extends StatelessWidget {
                     // Icon
                     Ink(
                         height: 55,
-                        width: 45,
+                        width: 30,
                         child: Icon(
                           Icons.qr_code_scanner,
-                          size: 32,
+                          size: 28,
                           color: main_color_dark,
                         )),
                     Expanded(
                         child: Container(
                       height: 55,
-                      padding: EdgeInsets.only(left: 15, right: 15),
+                      padding: EdgeInsets.only(left: 15, right: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -266,38 +318,20 @@ class ScannedDataPageView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Status :',
+                                'Tanggal :',
                                 style: text_body_regular.copyWith(
                                   fontSize: text_size_smallest,
                                   color: color_grey_dark,
                                 ),
                               ),
                               SizedBox(
-                                height: 8,
+                                height: 5,
                               ),
-                              Ink(
-                                child: Row(
-                                  children: [
-                                    Ink(
-                                        decoration: BoxDecoration(
-                                            color:
-                                                (c.dataList[i].isSubmitted == 1)
-                                                    ? Colors.green
-                                                    : accent_color_dark,
-                                            borderRadius:
-                                                BorderRadius.circular(3)),
-                                        height: 10,
-                                        width: 10),
-                                    SizedBox(width: 5),
-                                    Text(
-                                        (c.dataList[i].isSubmitted == 1)
-                                            ? "Uploaded"
-                                            : "Not Uploaded",
-                                        style: text_body_regular.copyWith(
-                                            fontSize: text_size_smallest)),
-                                  ],
-                                ),
-                              )
+                              Text(
+                                '${c.dataList[i].tanggal}',
+                                style: text_body_medium.copyWith(
+                                    fontSize: text_size_regular),
+                              ),
                             ],
                           ),
                         ],

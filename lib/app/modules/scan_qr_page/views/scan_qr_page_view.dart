@@ -12,6 +12,7 @@ class ScanQrPageView extends GetView<ScanQrPageController> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
+      // ignore: missing_return
       onWillPop: () {
         Get.back();
       },
@@ -102,7 +103,7 @@ class _DialogSubmitData extends StatelessWidget {
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(15)),
           height: Get.height * .25,
-          width: Get.width * .75,
+          width: Get.width * .9,
           child: Material(
             color: Colors.white,
             child: Column(
@@ -122,12 +123,11 @@ class _DialogSubmitData extends StatelessWidget {
                       // Index Data
                       Container(
                         color: Colors.white,
-                        width: Get.width * .15,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              "No.",
+                              "No",
                             ),
                             SizedBox(height: 8),
                             Text(
@@ -168,6 +168,24 @@ class _DialogSubmitData extends StatelessWidget {
                             SizedBox(height: 8),
                             Text(
                               "${Get.find<ScanQrPageController>().dataEkspedisi.value}",
+                              style: text_body_medium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Index Ekspedisi
+                      Container(
+                        color: Colors.white,
+                        width: Get.width * .2,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "Tanggal",
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "${Get.find<ScanQrPageController>().dataTanggal.value}",
                               style: text_body_medium,
                             ),
                           ],

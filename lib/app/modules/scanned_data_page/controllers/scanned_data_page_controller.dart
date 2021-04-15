@@ -1,12 +1,17 @@
+import 'dart:convert';
+
 import 'package:enviocrsl/app/data/db/database.dart';
 import 'package:enviocrsl/app/data/models/ScannedData.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 
 class ScannedDataPageController extends GetxController {
   var dbHelper;
   var countNotSubmitted = 0;
+
+  //
+  var isUploading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -33,12 +38,18 @@ class ScannedDataPageController extends GetxController {
   }
 
   void updateAllData() async {
+    this.isUploading.toggle();
     for (final element in dataList) {
       if (element.isSubmitted == 0) {
         element.isSubmitted = 1;
-        await http.get(Uri.parse(
-            "https://script.google.com/macros/s/AKfycbwuNXlwS0S94C5cDWXjfNHPEpB7xoHI_MRsKIjN-zs8OsDrzRU6xbYifVC6bZsuVs6O/exec?no=${element.no}&nama=${element.nama}&ekspedisi=${element.ekspedisi}"));
-        print('data ${element.no} berhasil diupdate');
+        var response = await http.get(Uri.parse(
+            "https://script.google.com/macros/s/AKfycbwuNXlwS0S94C5cDWXjfNHPEpB7xoHI_MRsKIjN-zs8OsDrzRU6xbYifVC6bZsuVs6O/exec?no=${element.no}&nama=${element.nama}&ekspedisi=${element.ekspedisi}&tanggal=${element.tanggal}"));
+        var status = jsonDecode(response.body)['status'];
+        if (status == "SUCCESS") {
+          print('data ${element.no} berhasil diupdate');
+        } else {
+          print('data ${element.no} gagal diupdate');
+        }
       } else {
         print('data ${element.no} gagal diupdate');
       }
@@ -46,48 +57,28 @@ class ScannedDataPageController extends GetxController {
     dbHelper.updateDataToSubmitted(dataList);
     loadScannedData();
     getNotSUbmittedItemLength();
-    Get.snackbar(
-      "Status",
-      'Success Upload This Data',
-      duration: Duration(seconds: 2),
-      snackStyle: SnackStyle.GROUNDED,
-      backgroundColor: Colors.white,
-    );
+    this.isUploading.toggle();
   }
 
   void submitDataToSheet(int i) async {
-    if (dataList[i].isSubmitted == 0) {
-      dataList[i].isSubmitted = 1;
-      await http.get(Uri.parse(
-          "https://script.google.com/macros/s/AKfycbwuNXlwS0S94C5cDWXjfNHPEpB7xoHI_MRsKIjN-zs8OsDrzRU6xbYifVC6bZsuVs6O/exec?no=${dataList[i].no}&nama=${dataList[i].nama}&ekspedisi=${dataList[i].ekspedisi}"));
-      print('data ${dataList[i].no} berhasil diupdate');
+    this.isUploading.toggle();
+    dataList[i].isSubmitted = 1;
+    var response = await http.get(Uri.parse(
+        "https://script.google.com/macros/s/AKfycbwuNXlwS0S94C5cDWXjfNHPEpB7xoHI_MRsKIjN-zs8OsDrzRU6xbYifVC6bZsuVs6O/exec?no=${dataList[i].no}&nama=${dataList[i].nama}&ekspedisi=${dataList[i].ekspedisi}&tanggal=${dataList[i].tanggal}"));
+    var status = jsonDecode(response.body)['status'];
+
+    if (status == 'SUCCESS') {
+      dbHelper.updateDataToSubmitted(dataList);
+      loadScannedData();
+      this.isUploading.toggle();
     } else {
-      print('data ${dataList[i].no} gagal diupdate');
+      this.isUploading.toggle();
     }
-    dbHelper.updateDataToSubmitted(dataList);
-    loadScannedData();
-    getNotSUbmittedItemLength();
-    Get.snackbar(
-      "Status",
-      'Success Upload All Data',
-      duration: Duration(seconds: 2),
-      snackStyle: SnackStyle.GROUNDED,
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.white,
-    );
   }
 
   void deleteSingleData(int i) {
     var id = dataList[i].id;
     this.dbHelper.deleteDataByNo(id);
-    Get.snackbar(
-      "Status",
-      'Success Delete Data',
-      duration: Duration(seconds: 2),
-      snackStyle: SnackStyle.GROUNDED,
-      snackPosition: SnackPosition.TOP,
-      backgroundColor: Colors.white,
-    );
     loadScannedData();
     getNotSUbmittedItemLength();
   }

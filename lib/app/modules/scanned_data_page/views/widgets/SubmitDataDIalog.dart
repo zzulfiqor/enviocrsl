@@ -62,10 +62,20 @@ class SubmitDataDialog extends StatelessWidget {
                                 .isSubmitted ==
                             1)
                         ? null
-                        : () {
-                            Get.find<ScannedDataPageController>()
-                                .submitDataToSheet(i);
+                        : () async {
                             Get.back();
+                            Get.back();
+                            // ignore: await_only_futures
+                            await Get.find<ScannedDataPageController>()
+                                .submitDataToSheet(i);
+                            Get.snackbar(
+                              "Status",
+                              'Success Upload Data',
+                              duration: Duration(seconds: 2),
+                              snackStyle: SnackStyle.GROUNDED,
+                              snackPosition: SnackPosition.TOP,
+                              backgroundColor: Colors.white,
+                            );
                           },
                     child: Text(
                       "Submit",
