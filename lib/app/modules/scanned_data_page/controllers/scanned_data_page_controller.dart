@@ -1,16 +1,16 @@
 import 'dart:convert';
-
 import 'package:enviocrsl/app/data/db/database.dart';
 import 'package:enviocrsl/app/data/models/ScannedData.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 
 class ScannedDataPageController extends GetxController {
+  //
   var dbHelper;
   var countNotSubmitted = 0;
-
-  //
   var isUploading = false.obs;
+  var dataList = <ScannedData>[].obs;
+  //
 
   @override
   void onInit() {
@@ -19,9 +19,6 @@ class ScannedDataPageController extends GetxController {
     getNotSUbmittedItemLength();
     loadScannedData();
   }
-
-  var dataList = <ScannedData>[].obs;
-  // var datalistFiltered = <ScannedData>[].obs;
 
   void loadScannedData() {
     var notUploadedData = <ScannedData>[];
@@ -43,7 +40,7 @@ class ScannedDataPageController extends GetxController {
       if (element.isSubmitted == 0) {
         element.isSubmitted = 1;
         var response = await http.get(Uri.parse(
-            "https://script.google.com/macros/s/AKfycbwuNXlwS0S94C5cDWXjfNHPEpB7xoHI_MRsKIjN-zs8OsDrzRU6xbYifVC6bZsuVs6O/exec?no=${element.no}&nama=${element.nama}&ekspedisi=${element.ekspedisi}&tanggal=${element.tanggal}"));
+            "https://script.google.com/macros/s/AKfycbzpuh6YKGDnT4DYxLHavgoe2doxZjJU9ynBoRcUwf5v6B1dVSNaXEwOwHF94fztk5bl2A/exec?no=${element.no}&nama=${element.nama}&ekspedisi=${element.ekspedisi}&tanggal=${element.tanggal}"));
         var status = jsonDecode(response.body)['status'];
         if (status == "SUCCESS") {
           print('data ${element.no} berhasil diupdate');
@@ -64,7 +61,7 @@ class ScannedDataPageController extends GetxController {
     this.isUploading.toggle();
     dataList[i].isSubmitted = 1;
     var response = await http.get(Uri.parse(
-        "https://script.google.com/macros/s/AKfycbwuNXlwS0S94C5cDWXjfNHPEpB7xoHI_MRsKIjN-zs8OsDrzRU6xbYifVC6bZsuVs6O/exec?no=${dataList[i].no}&nama=${dataList[i].nama}&ekspedisi=${dataList[i].ekspedisi}&tanggal=${dataList[i].tanggal}"));
+        "https://script.google.com/macros/s/AKfycbzpuh6YKGDnT4DYxLHavgoe2doxZjJU9ynBoRcUwf5v6B1dVSNaXEwOwHF94fztk5bl2A/exec?no=${dataList[i].no}&nama=${dataList[i].nama}&ekspedisi=${dataList[i].ekspedisi}&tanggal=${dataList[i].tanggal}"));
     var status = jsonDecode(response.body)['status'];
 
     if (status == 'SUCCESS') {

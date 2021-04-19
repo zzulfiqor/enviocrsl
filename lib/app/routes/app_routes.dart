@@ -7,6 +7,8 @@ abstract class Routes {
   static const SCAN_QR_PAGE = _Paths.SCAN_QR_PAGE;
   static const HOME_PAGE = _Paths.HOME_PAGE;
   static const INPUT_MANUAL_PAGE = _Paths.INPUT_MANUAL_PAGE;
+  static const UPLOADED_DATA_LIST = _Paths.UPLOADED_DATA_LIST;
+  static const BASE = _Paths.BASE;
 }
 
 abstract class _Paths {
@@ -15,4 +17,6 @@ abstract class _Paths {
   static const SCAN_QR_PAGE = '/scan-qr-page';
   static const HOME_PAGE = '/home-page';
   static const INPUT_MANUAL_PAGE = '/input-manual-page';
+  static const UPLOADED_DATA_LIST = '/uploaded-data-list';
+  static const BASE = '/base';
 }

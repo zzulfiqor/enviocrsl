@@ -6,8 +6,24 @@ import 'package:get/get.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScanQrPageController extends GetxController {
+  
+  // 
   QRViewController qrViewController;
   var dbHelper;
+  var isDataHaveSaved = false.obs;
+  var isTabOpen = true.obs;
+  var isSubmitError = false.obs;
+  var isFlashOn = false.obs;
+  var isDialogLoading = false.obs;
+  var dataFromQr = "";
+  var snackBarText = "".obs;
+  var dataNo = '-'.obs;
+  var dataNama = '-'.obs;
+  var dataEkspedisi = '-'.obs;
+  var dataTanggal = '-'.obs;
+  var regexNo = RegExp(r'[^0-9]+');
+  var regexBracket = RegExp(r'\[|\]');
+  //
 
   @override
   void onInit() {
@@ -20,23 +36,8 @@ class ScanQrPageController extends GetxController {
     super.onClose();
     Get.put(ScannedDataPageController()).loadScannedData();
   }
-
-  var isDataHaveSaved = false.obs;
-  var isTabOpen = true.obs;
-  var isSubmitError = false.obs;
-  var isFlashOn = false.obs;
-  var isDialogLoading = false.obs;
-
-  var dataFromQr = "";
-  var snackBarText = "".obs;
-  var dataNo = '-'.obs;
-  var dataNama = '-'.obs;
-  var dataEkspedisi = '-'.obs;
-  var dataTanggal = '-'.obs;
-
-  var regexNo = RegExp(r'[^0-9]+');
-  var regexBracket = RegExp(r'\[|\]');
-
+ 
+   
   void setDataFromQr(String data) {
     this.dataFromQr = data.trim();
     update();

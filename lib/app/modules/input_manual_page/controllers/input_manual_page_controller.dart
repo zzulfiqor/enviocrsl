@@ -6,16 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class InputManualPageController extends GetxController {
+  //
   var dbHelper;
-
+  var snackBarText = '';
+  var isLoading = false.obs;
   TextEditingController noInputController = TextEditingController();
   TextEditingController namaInputController = TextEditingController();
   TextEditingController ekspedisiInputController = TextEditingController();
   TextEditingController tanggalInputController = TextEditingController();
+  //
 
-  var snackBarText = '';
-
-  var isLoading = false.obs;
   @override
   void onInit() {
     super.onInit();

@@ -2,7 +2,7 @@ class DataSheetModel {
   int no;
   String nama;
   String ekspedisi;
-  String tanggal;
+  int tanggal;
 
   DataSheetModel({this.no, this.nama, this.ekspedisi, this.tanggal});
 
